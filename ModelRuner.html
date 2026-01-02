@@ -31,50 +31,58 @@
 
     <div class="result" id="result"></div>
 
-    <script>
-        async function getDoctors() {
-            const symptoms = document.getElementById("symptoms").value;
-            const address = document.getElementById("address").value;
+   <script>
+async function getDoctors() {
+    const symptoms = document.getElementById("symptoms").value;
+    const address = document.getElementById("address").value;
 
-            const resultDiv = document.getElementById("result");
-            resultDiv.innerHTML = "Loading...";
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "Loading...";
 
-            try {
-                const response = await fetch(
-                    "https://doctor-finding.onrender.com/predict",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            symptoms: symptoms,
-                            address: address
-                        })
-                    }
-                );
-
-                const data = await response.json();
-
-                let html = `<h3>Predicted Specialization: ${data.predicted_specialization}</h3>`;
-                html += "<ul>";
-
-                data.doctors.forEach(doc => {
-                    html += `<li>
-                        <b>${doc.doctor_name}</b><br>
-                        Time: ${doc.opening_time} - ${doc.closing_time}<br>
-                        Phone: ${doc.phone_number}
-                    </li><br>`;
-                });
-
-                html += "</ul>";
-                resultDiv.innerHTML = html;
-
-            } catch (error) {
-                resultDiv.innerHTML = "Error connecting to API";
+    try {
+        const response = await fetch(
+            "https://cors-anywhere.herokuapp.com/https://doctor-finding.onrender.com/predict",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    symptoms: symptoms,
+                    address: address
+                })
             }
+        );
+
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
         }
-    </script>
+
+        const data = await response.json();
+
+        let html = `<h3>Predicted Specialization: ${data.predicted_specialization}</h3>`;
+        html += "<ul>";
+
+        data.doctors.forEach(doc => {
+            html += `<li>
+                <b>${doc.doctor_name}</b><br>
+                Time: ${doc.opening_time} - ${doc.closing_time}<br>
+                Phone: ${doc.phone_number}
+            </li><br>`;
+        });
+
+        html += "</ul>";
+        resultDiv.innerHTML = html;
+
+    } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = "Error: " + error.message;
+    }
+}
+</script>
+
+
 
 </body>
   </html>
