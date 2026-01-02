@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Recommendation</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 8px 0;
+            width: 300px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Doctor Recommendation System</h2>
+
+    <label>Symptoms:</label><br>
+    <input type="text" id="symptoms" placeholder="Heart problem, BP"><br>
+
+    <label>Address:</label><br>
+    <input type="text" id="address" placeholder="Harihar, Karnataka"><br>
+
+    <button onclick="getDoctors()">Find Doctors</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        async function getDoctors() {
+            const symptoms = document.getElementById("symptoms").value;
+            const address = document.getElementById("address").value;
+
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Loading...";
+
+            try {
+                const response = await fetch(
+                    "https://doctor-finding.onrender.com/predict",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            symptoms: symptoms,
+                            address: address
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                let html = `<h3>Predicted Specialization: ${data.predicted_specialization}</h3>`;
+                html += "<ul>";
+
+                data.doctors.forEach(doc => {
+                    html += `<li>
+                        <b>${doc.doctor_name}</b><br>
+                        Time: ${doc.opening_time} - ${doc.closing_time}<br>
+                        Phone: ${doc.phone_number}
+                    </li><br>`;
+                });
+
+                html += "</ul>";
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = "Error connecting to API";
+            }
+        }
+    </script>
+
+</body>
+  </html>
